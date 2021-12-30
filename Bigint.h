@@ -32,6 +32,8 @@ Bigint2 Mod(Bigint2 a, Bigint2 b);         //Bigint2 mod运算
 void BitMoveRight(Bigint &a);
 
 
+
+
 Bigint Narrow(Bigint2 a)   //压缩
 {
 	Bigint res = { 0 };

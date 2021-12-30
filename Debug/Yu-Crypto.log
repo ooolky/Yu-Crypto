@@ -1,12 +1,10 @@
-﻿生成启动时间为 2021/12/30 17:24:24。
+﻿生成启动时间为 2021/12/30 19:34:48。
      1>项目“C:\Users\LiKai\documents\visual studio 2010\Projects\Yu-Crypto\Yu-Crypto\Yu-Crypto.vcxproj”在节点 2 上(build 个目标)。
      1>InitializeBuildStatus:
          正在对“Debug\Yu-Crypto.unsuccessfulbuild”执行 Touch 任务。
        ClCompile:
          所有输出均为最新。
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"StdAfx.h" /Fp"Debug\Yu-Crypto.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
-         stdafx.cpp
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\Yu-Crypto.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt "Yu-Crypto.cpp" "Yu-CryptoDlg.cpp"
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\Yu-Crypto.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt "Yu-CryptoDlg.cpp"
          Yu-CryptoDlg.cpp
      1>c:\users\likai\documents\visual studio 2010\projects\yu-crypto\yu-crypto\yu-cryptodlg.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
      1>c:\users\likai\documents\visual studio 2010\projects\yu-crypto\yu-crypto\bigint.h(7): warning C4091: “typedef ”: 没有声明变量时忽略“Bigint”的左侧
@@ -129,10 +127,8 @@
      1>c:\users\likai\documents\visual studio 2010\projects\yu-crypto\yu-crypto\yu-cryptodlg.cpp(430): error C2065: “dlgAbout”: 未声明的标识符
      1>c:\users\likai\documents\visual studio 2010\projects\yu-crypto\yu-crypto\yu-cryptodlg.cpp(430): error C2228: “.DoModal”的左边必须有类/结构/联合
      1>c:\users\likai\documents\visual studio 2010\projects\yu-crypto\yu-crypto\yu-cryptodlg.cpp(430): fatal error C1003: 错误计数超过 100；正在停止编译
-         Yu-Crypto.cpp
-         正在生成代码...
      1>已完成生成项目“C:\Users\LiKai\documents\visual studio 2010\Projects\Yu-Crypto\Yu-Crypto\Yu-Crypto.vcxproj”(build 个目标)的操作 - 失败。
 
 生成失败。
 
-已用时间 00:00:03.71
+已用时间 00:00:00.37

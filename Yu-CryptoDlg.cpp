@@ -724,7 +724,26 @@ void CYuCryptoDlg::OnBnClickedButton3()
 	int check_2 = ((CButton*)GetDlgItem(IDC_RADIO2))->GetCheck();//des
 	int check_3 = ((CButton*)GetDlgItem(IDC_RADIO3))->GetCheck();//rsa
 
-if(check_1==1||check_2==1)
+	if(check_1==1)
+{
+	char pwdcont[]="0123456789";
+	int i;
+	int random;
+	char *Password = (char *)malloc(12 + 1);
+	
+	srand((unsigned)time(NULL));
+	for(i = 0;i < 12;i++)
+	{
+        random = rand()%(strlen(pwdcont));
+		*(Password + i) = pwdcont[random]; 
+	}
+	
+	*(Password + i)= '\0'; 
+
+	SetDlgItemText(IDC_EDIT1,Password);
+
+}
+else if(check_2==1)
 {
 	char pwdcont[]="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
 	int i;
