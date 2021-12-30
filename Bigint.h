@@ -2,11 +2,11 @@
 using namespace std;
 #define SIZE 33				//为了实现N  1024比特
 
-typedef struct Bigint {
+struct Bigint {
 	unsigned char num[SIZE];
 };
 
-typedef struct Bigint2 {	//运算结果数组长度最多为两倍
+struct Bigint2 {	//运算结果数组长度最多为两倍
 	unsigned char num[2 * SIZE];
 };
 

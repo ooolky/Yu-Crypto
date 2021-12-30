@@ -1,4 +1,4 @@
-
+﻿
 // Yu-CryptoDlg.cpp : 实现文件
 //
 
@@ -447,7 +447,6 @@ BOOL CYuCryptoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-	((CButton*)GetDlgItem(IDC_BUTTON3))->EnableWindow(FALSE);
 	((CButton*)GetDlgItem(IDC_EDIT4))->EnableWindow(FALSE);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -819,36 +818,39 @@ else if(check_3==1)
 void CYuCryptoDlg::OnBnClickedRadio1()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	((CButton*)GetDlgItem(IDC_BUTTON3))->EnableWindow(FALSE);
 	((CButton*)GetDlgItem(IDC_EDIT4))->EnableWindow(FALSE);
 	SetDlgItemText(IDC_EDIT1, "");
 	SetDlgItemText(IDC_EDIT2, "");
 	SetDlgItemText(IDC_EDIT3, "");
 	SetDlgItemText(IDC_EDIT4, "");
+	((CButton*)GetDlgItem(IDC_RADIO2))->SetCheck(FALSE);
+	((CButton*)GetDlgItem(IDC_RADIO3))->SetCheck(FALSE);
 }
 
 
 void CYuCryptoDlg::OnBnClickedRadio2()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	((CButton*)GetDlgItem(IDC_BUTTON3))->EnableWindow(FALSE);
 	((CButton*)GetDlgItem(IDC_EDIT4))->EnableWindow(FALSE);
 	SetDlgItemText(IDC_EDIT1, "");
 	SetDlgItemText(IDC_EDIT2, "");
 	SetDlgItemText(IDC_EDIT3, "");
 	SetDlgItemText(IDC_EDIT4, "");
+	((CButton*)GetDlgItem(IDC_RADIO1))->SetCheck(FALSE);
+	((CButton*)GetDlgItem(IDC_RADIO3))->SetCheck(FALSE);
 }
 
 
 void CYuCryptoDlg::OnBnClickedRadio3()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	((CButton*)GetDlgItem(IDC_BUTTON3))->EnableWindow(TRUE);
 	((CButton*)GetDlgItem(IDC_EDIT4))->EnableWindow(TRUE);
 	SetDlgItemText(IDC_EDIT1, "");
 	SetDlgItemText(IDC_EDIT2, "");
 	SetDlgItemText(IDC_EDIT3, "");
 	SetDlgItemText(IDC_EDIT4, "");
+	((CButton*)GetDlgItem(IDC_RADIO1))->SetCheck(FALSE);
+	((CButton*)GetDlgItem(IDC_RADIO2))->SetCheck(FALSE);
 }
 
 
