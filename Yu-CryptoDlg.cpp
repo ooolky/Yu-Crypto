@@ -1,5 +1,5 @@
 
-// Yu-CryptoDlg.cpp : ÊµÏÖÎÄ¼ş
+// Yu-CryptoDlg.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
@@ -12,14 +12,14 @@
 #define new DEBUG_NEW
 #endif
 
-char m[1000] = { 0 };//Ã÷ÎÄ
-char c[1000] = { 0 };//ÃÜÎÄ
-char M[1000] = { 0 };//½âÃÜµÃµ½µÄĞÅÏ¢
-int block = 0;//·Ö¿é
+char m[1000] = { 0 };//æ˜æ–‡
+char c[1000] = { 0 };//å¯†æ–‡
+char M[1000] = { 0 };//è§£å¯†å¾—åˆ°çš„ä¿¡æ¯
+int block = 0;//åˆ†å—
 
-bool SubKey[16][48];//×ÓÃÜÔ¿16ÂÖ 48bit
+bool SubKey[16][48];//å­å¯†é’¥16è½® 48bit
 
-//³õÊ¼ÖÃ»»IP
+//åˆå§‹ç½®æ¢IP
 const static char IP_Table[64] = {
 	58,50,42,34,26,18,10,2,
 	60,52,44,36,28,20,12,4,
@@ -30,7 +30,7 @@ const static char IP_Table[64] = {
 	61,53,45,37,29,21,13,5,
 	63,55,47,39,31,23,15,7
 };
-//³õÊ¼ÄæÖÃ»»IP
+//åˆå§‹é€†ç½®æ¢IP
 const static char IP_N_Table[64] = {
 	40,8,48,16,56,24,64,32,
 	39,7,47,15,55,23,63,31,
@@ -41,9 +41,9 @@ const static char IP_N_Table[64] = {
 	34,2,42,10,50,18,58,26,
 	33,1,41,9,49,17,57,25
 };
-//À©Õ¹±íE
+//æ‰©å±•è¡¨E
 static const char E_Table[48] = {
-	//ÉÙ´òÒ»ĞĞ
+	//å°‘æ‰“ä¸€è¡Œ
 	32,1,2,3,4,5,
 	4,5,6,7,8,9,
 	8,9,10,11,12,13,
@@ -53,13 +53,13 @@ static const char E_Table[48] = {
 	24,25,26,27,28,29,
 	28,29,30,31,32,1
 };
-//SºĞ
+//Sç›’
 static const char S_Box[8][4][16] = {
-	//S1µÚÒ»ĞĞ10ÊéÉÏÊÇ0´ı¼ìÑé
+	//S1ç¬¬ä¸€è¡Œ10ä¹¦ä¸Šæ˜¯0å¾…æ£€éªŒ
 	14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7,
 	0,15,7,4,14,2,13,1,10,6,12,11,9,5,3,8,
 	4,1,14,8,13,6,2,11,15,12,9,7,3,10,5,0,
-	15,12,8,2,4,9,1,7,5,11,3,15,10,0,6,13,	//15Ìî³ÉÁË14
+	15,12,8,2,4,9,1,7,5,11,3,15,10,0,6,13,	//15å¡«æˆäº†14
 	//S2
 	15, 1, 8,14, 6,11, 3, 4, 9, 7, 2,13,12, 0, 5,10,
 	 3,13, 4, 7,15, 2, 8,14,12, 0, 1,10, 6, 9,11, 5,
@@ -96,7 +96,7 @@ static const char S_Box[8][4][16] = {
 	7,11,4,1,9,12,14,2,0,6,10,13,15,3,5,8,
 	2,1,14,7,4,10,8,13,15,12,9,0,3,5,6,11
 };
-//PºĞ
+//Pç›’
 static const char P_Table[32] = {
 	16,7,20,21,
 	29,12,28,17,
@@ -107,7 +107,7 @@ static const char P_Table[32] = {
 	19,13,30,6,
 	22,11,4,25
 };
-//PC_1ÖÃ»»
+//PC_1ç½®æ¢
 static const char PC_1_Table[56] = {
 	57,49,41,33,25,17,9,
 	1,58,50,42,34,26,18,
@@ -118,7 +118,7 @@ static const char PC_1_Table[56] = {
 	14,6,61,53,45,37,29,
 	21,13,5,28,20,12,4
 };
-//PC_2ÖÃ»»
+//PC_2ç½®æ¢
 static const char PC_2_Table[48] = {
 	14, 17, 11, 24,  1,  5, 
 	3,  28, 15,  6, 21, 10, 
@@ -129,22 +129,22 @@ static const char PC_2_Table[48] = {
 	44, 49, 39, 56, 34, 53, 
 	46, 42, 50, 36, 29, 32,
 };
-//×óÒÆÎ»Êı±í
+//å·¦ç§»ä½æ•°è¡¨
 static const char LS_Table[16] = {
 	1, 1, 2, 2, 2, 2, 2, 2,
 	1, 2, 2, 2, 2, 2, 2, 1
 };
 
-void Transform(bool* Out, bool* In, const char* Table, int len);//±íÖÃ»»
-void Des_Run(char Out[8], char In[8], bool flag);//¼Ó½âÃÜº¯Êı£¬¿¿flagÑ¡Ôñ¹¦ÄÜ
-void Des_SetSubkey(char key[8]);//Éú³É×ÓÃÜÔ¿
-void F_func(bool In[32], bool Ki[48]);//FÂÖº¯Êı
-void S_func(bool Out[32], bool In[48]);//SºĞÖÃ»»
-void Xor(bool* InA, bool* InB, int len);//Òì»ò
-void Rotatel(bool* In, int len, int loop);//Ñ­»·×óÒÆ
-void ByteToBit(bool* Out, const char* In, int bits);//×Ö·û×ª±ÈÌØ
-void HalfByteToBit(bool* Out, const char* In, int bits);//°ë×Ö·û×ª±ÈÌØ
-void BitToByte(char* Out, const bool* In, int bits);//±ÈÌØ×ª×Ö·û
+void Transform(bool* Out, bool* In, const char* Table, int len);//è¡¨ç½®æ¢
+void Des_Run(char Out[8], char In[8], bool flag);//åŠ è§£å¯†å‡½æ•°ï¼Œé flagé€‰æ‹©åŠŸèƒ½
+void Des_SetSubkey(char key[8]);//ç”Ÿæˆå­å¯†é’¥
+void F_func(bool In[32], bool Ki[48]);//Fè½®å‡½æ•°
+void S_func(bool Out[32], bool In[48]);//Sç›’ç½®æ¢
+void Xor(bool* InA, bool* InB, int len);//å¼‚æˆ–
+void Rotatel(bool* In, int len, int loop);//å¾ªç¯å·¦ç§»
+void ByteToBit(bool* Out, const char* In, int bits);//å­—ç¬¦è½¬æ¯”ç‰¹
+void HalfByteToBit(bool* Out, const char* In, int bits);//åŠå­—ç¬¦è½¬æ¯”ç‰¹
+void BitToByte(char* Out, const bool* In, int bits);//æ¯”ç‰¹è½¬å­—ç¬¦
 
 Bigint p = { 0 };
 Bigint q = { 0 };
@@ -158,64 +158,64 @@ Bigint MM = { 0 };
 
 void Des_Run(char Out[8], char In[8], bool flag)
 {
-	static bool M[64];//´æ´¢64Î»Ã÷ÎÄ£¬ÓÉÃ÷ÎÄ×Ö·û×ª»»µÃÀ´
-	static bool Temp[32];//ÖĞ¼ä±äÁ¿£¬ÓÃÓÚ¶ÔLi¸³Öµ
-	static bool* Li = &M[0];//·ÖÎª×óÓÒÁ½×é
+	static bool M[64];//å­˜å‚¨64ä½æ˜æ–‡ï¼Œç”±æ˜æ–‡å­—ç¬¦è½¬æ¢å¾—æ¥
+	static bool Temp[32];//ä¸­é—´å˜é‡ï¼Œç”¨äºå¯¹Lièµ‹å€¼
+	static bool* Li = &M[0];//åˆ†ä¸ºå·¦å³ä¸¤ç»„
 	static bool* Ri = &M[32];
 	ByteToBit(M, In, 64);
 	if (flag)
 	{
-		Transform(M, M, IP_Table, 64);//³õÊ¼ÖÃ»»IP
+		Transform(M, M, IP_Table, 64);//åˆå§‹ç½®æ¢IP
 		for (int i = 0; i < 16; i++)
 		{
-			memcpy(Temp, Ri, 32);//°ÑR(i-1)±£´æÆğÀ´
+			memcpy(Temp, Ri, 32);//æŠŠR(i-1)ä¿å­˜èµ·æ¥
 			F_func(Ri, SubKey[i]);
 			Xor(Ri, Li, 32);
 			memcpy(Li, Temp, 32);//Li=R(i-1)
 		}
 		memcpy(Temp, Li, 32);
 		memcpy(Li, Ri, 32);
-		memcpy(Ri, Temp, 32);//×îºó½»»»Li,Ri
+		memcpy(Ri, Temp, 32);//æœ€åäº¤æ¢Li,Ri
 		Transform(M, M, IP_N_Table, 64);
 
 	}
 	else {
 		Transform(M, M, IP_Table, 64);
-		for (int i = 15; i >= 0; i--)//Ã»ÓĞµÈÓÚ0
+		for (int i = 15; i >= 0; i--)//æ²¡æœ‰ç­‰äº0
 		{
-			memcpy(Temp, Ri, 32);//°ÑR(i-1)±£´æÆğÀ´
+			memcpy(Temp, Ri, 32);//æŠŠR(i-1)ä¿å­˜èµ·æ¥
 			F_func(Ri, SubKey[i]);
 			Xor(Ri, Li, 32);
 			memcpy(Li, Temp, 32);//Li=R(i-1)
 		}
 		memcpy(Temp, Li, 32);
 		memcpy(Li, Ri, 32);
-		memcpy(Ri, Temp, 32);//×îºó½»»»Li,Ri
+		memcpy(Ri, Temp, 32);//æœ€åäº¤æ¢Li,Ri
 		Transform(M, M, IP_N_Table, 64);
 	}
 	BitToByte(Out, M, 64);
 }
 void ByteToBit(bool* Out, const char* In, int bits)
 {	
-	//°Ñ¸÷ÖÖºĞ»ò±íÀïµÄÊ®½øÖÆ×ª³É±ÈÌØ
+	//æŠŠå„ç§ç›’æˆ–è¡¨é‡Œçš„åè¿›åˆ¶è½¬æˆæ¯”ç‰¹
 	for (int i = 0; i < bits; i++)
 	{
 		Out[i] = (In[i / 8] >> (i % 8)) & 1;
 	}
 }
-void HalfByteToBit(bool* Out, const char* In, int bits)//°Ñ¸÷ÖÖºĞ»ò±íÀïµÄÊ®½øÖÆ×ª³É±ÈÌØ
+void HalfByteToBit(bool* Out, const char* In, int bits)//æŠŠå„ç§ç›’æˆ–è¡¨é‡Œçš„åè¿›åˆ¶è½¬æˆæ¯”ç‰¹
 {
 	for (int i = 0; i < bits; i++)
 	{
 		Out[i] = (In[i /4] >> (i % 4)) & 1;
 	}
 }
-void Transform(bool* Out, bool* In, const char* Table, int len)//ÖÃ»»
+void Transform(bool* Out, bool* In, const char* Table, int len)//ç½®æ¢
 {
 	bool Temp[256];
 	for (int i = 0; i < len; i++)
 	{
-		//Out[i] = In[Table[i] - 1];//Table[i]-1£¬´Ó0¿ªÊ¼¼ÆÊı
+		//Out[i] = In[Table[i] - 1];//Table[i]-1ï¼Œä»0å¼€å§‹è®¡æ•°
 		Temp[i] = In[Table[i] - 1];
 	}
 	memcpy(Out, Temp, len);
@@ -234,18 +234,18 @@ void Xor(bool* InA, bool* InB, int len)
 	for (int i = 0; i < len; i++)
 		InA[i] = (InA[i] ^ InB[i]);
 }
-void S_func(bool Out[32], bool In[48])//´íÎóĞ´³ÉÁËbool* Out[32]
+void S_func(bool Out[32], bool In[48])//é”™è¯¯å†™æˆäº†bool* Out[32]
 {
 	for (char i = 0, j, k; i < 8; i++)//
 	{	
-		j = (In[0+6*i] << 1) + In[5+6*i];//ĞĞµÈÓÚÊ×Î²Æ´ÆğÀ´×é³ÉµÄÊ®½øÖÆÊı
+		j = (In[0+6*i] << 1) + In[5+6*i];//è¡Œç­‰äºé¦–å°¾æ‹¼èµ·æ¥ç»„æˆçš„åè¿›åˆ¶æ•°
 		k = (In[1+6*i] << 3) + (In[2+6*i] << 2) + (In[3+6*i] << 1) + In[4+6*i];
 		HalfByteToBit(Out+4*i, &S_Box[i][j][k], 4);
 	}
 }
 void BitToByte(char* Out, const bool* In, int bits)
 {
-	memset(Out, 0, bits >> 3);//³õÊ¼»¯8¸ö×Ö½ÚµÄÄÚ´æ
+	memset(Out, 0, bits >> 3);//åˆå§‹åŒ–8ä¸ªå­—èŠ‚çš„å†…å­˜
 	for (int i = 0; i < bits; i++)
 	{
 		Out[i >> 3] |= In[i] << (i & 7);
@@ -263,21 +263,21 @@ void Des_SetSubkey(char key[8])
 	{
 		Rotatel(KL, 28, LS_Table[i]);
 		Rotatel(KR, 28, LS_Table[i]);
-		Transform(SubKey[i], K, PC_2_Table,48);//Íü¼ÇPC_2ÖÃ»»ÁË
+		Transform(SubKey[i], K, PC_2_Table,48);//å¿˜è®°PC_2ç½®æ¢äº†
 
 	}
 }
 void Rotatel(bool* In, int len, int loop)
 {
 	static bool Temp[28];
-	memcpy(Temp, In, loop);//Ñ­»·Î»loopÎ»±£´æÔÚtempÖĞ
-	memcpy(In, In + loop, len - loop);//×óÒÆ
-	memcpy(In + len - loop, Temp, loop);//²¹ÉÏ
+	memcpy(Temp, In, loop);//å¾ªç¯ä½loopä½ä¿å­˜åœ¨tempä¸­
+	memcpy(In, In + loop, len - loop);//å·¦ç§»
+	memcpy(In + len - loop, Temp, loop);//è¡¥ä¸Š
 }
 
 void PrintNum(unsigned char *out,int &len, Bigint a)
 {
-	//ĞŞ¸Ä
+	//ä¿®æ”¹
 	len = 0;
 	unsigned char temp[2000] = { 0 };
 	//unsigned int temp[2000] = { 0 };
@@ -298,7 +298,7 @@ void PrintNum(unsigned char *out,int &len, Bigint a)
 	}
 }
 
-Bigint GCD(Bigint a, Bigint b)		//Õ·×ªÏà³ı·¨
+Bigint GCD(Bigint a, Bigint b)		//è¾—è½¬ç›¸é™¤æ³•
 {
 	Bigint c = { 0 };
 	while (getLength(a) > 0)
@@ -309,11 +309,11 @@ Bigint GCD(Bigint a, Bigint b)		//Õ·×ªÏà³ı·¨
 	}
 	return b;
 }
-Bigint GenE(Bigint PhiN)			//Éú³É¹«Ô¿e
+Bigint GenE(Bigint PhiN)			//ç”Ÿæˆå…¬é’¥e
 {
-	Bigint e = BigRand(PhiN);		//eÈ¡1 - PhiN
+	Bigint e = BigRand(PhiN);		//eå–1 - PhiN
 	Bigint g = GCD(PhiN, e);
-	while (getLength(g) != 1 || g.num[0] != 1)		//gÊÇ×î´ó¹«ÒòÊı£¬Ñ­»·ÖÁg=1½áÊø
+	while (getLength(g) != 1 || g.num[0] != 1)		//gæ˜¯æœ€å¤§å…¬å› æ•°ï¼Œå¾ªç¯è‡³g=1ç»“æŸ
 	{
 		e = BigRand(PhiN);
 		g = GCD(PhiN, e);
@@ -339,8 +339,8 @@ Bigint Decrypt(Bigint c, Bigint d, Bigint n)
 	return PowMod(c, d, n);
 }
 
-//ĞŞ¸Ä
-CString CYuCryptoDlg::Tansform(unsigned char * Out, int len)		//·µ»ØCString,×ª³ÉÊ®½øÖÆÊä³ö
+//ä¿®æ”¹
+CString CYuCryptoDlg::Tansform(unsigned char * Out, int len)		//è¿”å›CString,è½¬æˆåè¿›åˆ¶è¾“å‡º
 {
 	CString res;
 	CString Temp;
@@ -353,20 +353,20 @@ CString CYuCryptoDlg::Tansform(unsigned char * Out, int len)		//·µ»ØCString,×ª³É
 }
 
 
-// ÓÃÓÚÓ¦ÓÃ³ÌĞò¡°¹ØÓÚ¡±²Ëµ¥ÏîµÄ CAboutDlg ¶Ô»°¿ò
+// ç”¨äºåº”ç”¨ç¨‹åºâ€œå…³äºâ€èœå•é¡¹çš„ CAboutDlg å¯¹è¯æ¡†
 
 class CAboutDlg : public CDialogEx
 {
 public:
 	CAboutDlg();
 
-// ¶Ô»°¿òÊı¾İ
+// å¯¹è¯æ¡†æ•°æ®
 	enum { IDD = IDD_ABOUTBOX };
 
 	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV æ”¯æŒ
 
-// ÊµÏÖ
+// å®ç°
 protected:
 	DECLARE_MESSAGE_MAP()
 };
@@ -384,7 +384,7 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CYuCryptoDlg ¶Ô»°¿ò
+// CYuCryptoDlg å¯¹è¯æ¡†
 
 
 
@@ -415,15 +415,15 @@ BEGIN_MESSAGE_MAP(CYuCryptoDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CYuCryptoDlg ÏûÏ¢´¦Àí³ÌĞò
+// CYuCryptoDlg æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 BOOL CYuCryptoDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	// ½«¡°¹ØÓÚ...¡±²Ëµ¥ÏîÌí¼Óµ½ÏµÍ³²Ëµ¥ÖĞ¡£
+	// å°†â€œå…³äº...â€èœå•é¡¹æ·»åŠ åˆ°ç³»ç»Ÿèœå•ä¸­ã€‚
 
-	// IDM_ABOUTBOX ±ØĞëÔÚÏµÍ³ÃüÁî·¶Î§ÄÚ¡£
+	// IDM_ABOUTBOX å¿…é¡»åœ¨ç³»ç»Ÿå‘½ä»¤èŒƒå›´å†…ã€‚
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
 	ASSERT(IDM_ABOUTBOX < 0xF000);
 
@@ -441,16 +441,16 @@ BOOL CYuCryptoDlg::OnInitDialog()
 		}
 	}
 
-	// ÉèÖÃ´Ë¶Ô»°¿òµÄÍ¼±ê¡£µ±Ó¦ÓÃ³ÌĞòÖ÷´°¿Ú²»ÊÇ¶Ô»°¿òÊ±£¬¿ò¼Ü½«×Ô¶¯
-	//  Ö´ĞĞ´Ë²Ù×÷
-	SetIcon(m_hIcon, TRUE);			// ÉèÖÃ´óÍ¼±ê
-	SetIcon(m_hIcon, FALSE);		// ÉèÖÃĞ¡Í¼±ê
+	// è®¾ç½®æ­¤å¯¹è¯æ¡†çš„å›¾æ ‡ã€‚å½“åº”ç”¨ç¨‹åºä¸»çª—å£ä¸æ˜¯å¯¹è¯æ¡†æ—¶ï¼Œæ¡†æ¶å°†è‡ªåŠ¨
+	//  æ‰§è¡Œæ­¤æ“ä½œ
+	SetIcon(m_hIcon, TRUE);			// è®¾ç½®å¤§å›¾æ ‡
+	SetIcon(m_hIcon, FALSE);		// è®¾ç½®å°å›¾æ ‡
 
-	// TODO: ÔÚ´ËÌí¼Ó¶îÍâµÄ³õÊ¼»¯´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ é¢å¤–çš„åˆå§‹åŒ–ä»£ç 
 	((CButton*)GetDlgItem(IDC_BUTTON3))->EnableWindow(FALSE);
 	((CButton*)GetDlgItem(IDC_EDIT4))->EnableWindow(FALSE);
 
-	return TRUE;  // ³ı·Ç½«½¹µãÉèÖÃµ½¿Ø¼ş£¬·ñÔò·µ»Ø TRUE
+	return TRUE;  // é™¤éå°†ç„¦ç‚¹è®¾ç½®åˆ°æ§ä»¶ï¼Œå¦åˆ™è¿”å› TRUE
 }
 
 void CYuCryptoDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -466,19 +466,19 @@ void CYuCryptoDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	}
 }
 
-// Èç¹ûÏò¶Ô»°¿òÌí¼Ó×îĞ¡»¯°´Å¥£¬ÔòĞèÒªÏÂÃæµÄ´úÂë
-//  À´»æÖÆ¸ÃÍ¼±ê¡£¶ÔÓÚÊ¹ÓÃÎÄµµ/ÊÓÍ¼Ä£ĞÍµÄ MFC Ó¦ÓÃ³ÌĞò£¬
-//  Õâ½«ÓÉ¿ò¼Ü×Ô¶¯Íê³É¡£
+// å¦‚æœå‘å¯¹è¯æ¡†æ·»åŠ æœ€å°åŒ–æŒ‰é’®ï¼Œåˆ™éœ€è¦ä¸‹é¢çš„ä»£ç 
+//  æ¥ç»˜åˆ¶è¯¥å›¾æ ‡ã€‚å¯¹äºä½¿ç”¨æ–‡æ¡£/è§†å›¾æ¨¡å‹çš„ MFC åº”ç”¨ç¨‹åºï¼Œ
+//  è¿™å°†ç”±æ¡†æ¶è‡ªåŠ¨å®Œæˆã€‚
 
 void CYuCryptoDlg::OnPaint()
 {
 	if (IsIconic())
 	{
-		CPaintDC dc(this); // ÓÃÓÚ»æÖÆµÄÉè±¸ÉÏÏÂÎÄ
+		CPaintDC dc(this); // ç”¨äºç»˜åˆ¶çš„è®¾å¤‡ä¸Šä¸‹æ–‡
 
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
-		// Ê¹Í¼±êÔÚ¹¤×÷Çø¾ØĞÎÖĞ¾ÓÖĞ
+		// ä½¿å›¾æ ‡åœ¨å·¥ä½œåŒºçŸ©å½¢ä¸­å±…ä¸­
 		int cxIcon = GetSystemMetrics(SM_CXICON);
 		int cyIcon = GetSystemMetrics(SM_CYICON);
 		CRect rect;
@@ -486,7 +486,7 @@ void CYuCryptoDlg::OnPaint()
 		int x = (rect.Width() - cxIcon + 1) / 2;
 		int y = (rect.Height() - cyIcon + 1) / 2;
 
-		// »æÖÆÍ¼±ê
+		// ç»˜åˆ¶å›¾æ ‡
 		dc.DrawIcon(x, y, m_hIcon);
 	}
 	else
@@ -495,8 +495,8 @@ void CYuCryptoDlg::OnPaint()
 	}
 }
 
-//µ±ÓÃ»§ÍÏ¶¯×îĞ¡»¯´°¿ÚÊ±ÏµÍ³µ÷ÓÃ´Ëº¯ÊıÈ¡µÃ¹â±ê
-//ÏÔÊ¾¡£
+//å½“ç”¨æˆ·æ‹–åŠ¨æœ€å°åŒ–çª—å£æ—¶ç³»ç»Ÿè°ƒç”¨æ­¤å‡½æ•°å–å¾—å…‰æ ‡
+//æ˜¾ç¤ºã€‚
 HCURSOR CYuCryptoDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
@@ -514,21 +514,21 @@ if(check_1==1)
 	CString message;
 	CString cipher;
 	CString key;
-	GetDlgItemText(IDC_EDIT2, message);//»ñÈ¡ÎÄ±¾¿òÄÚÈİ´«¸ømessage
-	GetDlgItemText(IDC_EDIT1, key);//»ñÈ¡ÃÜÔ¿ÎÄ±¾¿òÄÚÈİ´«¸økey
+	GetDlgItemText(IDC_EDIT2, message);//è·å–æ–‡æœ¬æ¡†å†…å®¹ä¼ ç»™message
+	GetDlgItemText(IDC_EDIT1, key);//è·å–å¯†é’¥æ–‡æœ¬æ¡†å†…å®¹ä¼ ç»™key
 	char *message1 = message.GetBuffer(0);
 	char *cipher1;
 	int key1 = 0;
 	int key2 = 0;
-	key1 = _ttoi(key) % 26;//½«cstring×ª»»³ÉintĞÍ
+	key1 = _ttoi(key) % 26;//å°†cstringè½¬æ¢æˆintå‹
 	key2 = _ttoi(key) % 10;
-	cipher1 = message1;//Ä¬ÈÏÃÜÎÄµÈÓÚÃ÷ÎÄ
+	cipher1 = message1;//é»˜è®¤å¯†æ–‡ç­‰äºæ˜æ–‡
 	int size = message.GetLength();
 	for (int i = 0; i < size; i++)
 	{
-		if (message1[i] >= 'a'&&message1[i] <= 'z')//Ğ¡Ğ´×ÖÄ¸
+		if (message1[i] >= 'a'&&message1[i] <= 'z')//å°å†™å­—æ¯
 		{
-			if (message1[i] + key1 > 122)//122Îª¡®z'µÄasciiÂë
+			if (message1[i] + key1 > 122)//122ä¸ºâ€˜z'çš„asciiç 
 			{
 				cipher1[i] = message[i] + key1 - 26;
 			}
@@ -537,9 +537,9 @@ if(check_1==1)
 				cipher1[i] = message[i] + key1;
 			}
 		}
-		if (message1[i] >= 'A'&&message1[i] <= 'Z')//´óĞ´×ÖÄ¸
+		if (message1[i] >= 'A'&&message1[i] <= 'Z')//å¤§å†™å­—æ¯
 		{
-			if (message1[i] + key1 > 90)//90Îª¡®Z'µÄasciiÂë
+			if (message1[i] + key1 > 90)//90ä¸ºâ€˜Z'çš„asciiç 
 			{
 				cipher1[i] = message[i] + key1 - 26;
 			}
@@ -551,7 +551,7 @@ if(check_1==1)
 		if (message1[i] >= '0'&&message[i] <= '9')
 		{
 			
-			if (message1[i] + key2 > 57)//57Îª¡®9'µÄasciiÂë
+			if (message1[i] + key2 > 57)//57ä¸ºâ€˜9'çš„asciiç 
 			{
 				cipher1[i] = message[i] + key2 - 10;
 			}
@@ -568,37 +568,37 @@ if(check_1==1)
 else if(check_2==1)
 {
 	CString message;
-	GetDlgItemText(IDC_EDIT2, message);//¶ÁÈëÃ÷ÎÄ
+	GetDlgItemText(IDC_EDIT2, message);//è¯»å…¥æ˜æ–‡
 	int size = message.GetLength();
-	block = (size - 1) / 8 + 1;//·Ö×é³¤¶È,È«¾Ö±äÁ¿
+	block = (size - 1) / 8 + 1;//åˆ†ç»„é•¿åº¦,å…¨å±€å˜é‡
 
 	CString k;
 	GetDlgItemText(IDC_EDIT1, k);
 	char* key = k.GetBuffer(0);
 	Des_SetSubkey(key);
 
-	char m_block[8] = { 0 };//·Ö×é
+	char m_block[8] = { 0 };//åˆ†ç»„
 	char c_block[8] = { 0 };
 
-	for (int i = 0; i < block - 1; i++)//ÉÙ¼ÓÁËµÈÓÚ
+	for (int i = 0; i < block - 1; i++)//å°‘åŠ äº†ç­‰äº
 	{
 		for (int j = 0; j < 8; j++)
-			m_block[j] = message.GetAt(8 * i + j);//»ñÈ¡Ã÷ÎÄ¶ÔÓ¦·Ö×é×Ö·û
+			m_block[j] = message.GetAt(8 * i + j);//è·å–æ˜æ–‡å¯¹åº”åˆ†ç»„å­—ç¬¦
 		Des_Run(c_block, m_block, 1);
 		for (int j = 0; j < 8; j++)
-			c[8 * i + j] = c_block[j];//ÃÜÎÄ»ã×Ü
+			c[8 * i + j] = c_block[j];//å¯†æ–‡æ±‡æ€»
 	}
 
-	//×îºóÒ»×éÌî³ä²¢¼ÓÃÜ
+	//æœ€åä¸€ç»„å¡«å……å¹¶åŠ å¯†
 	for (int j = 0; j < 8; j++)
 		m_block[j] = 0;
 	for (int j = 0; j < (size - 1) % 8 + 1; j++)
 		m_block[j] = message.GetAt(8 * (block - 1) + j);
 	Des_Run(c_block, m_block, 1);
 	for (int j = 0; j < 8; j++)
-		c[8 * (block - 1) + j] = c_block[j];//°ÑjĞ´³ÉÁË1
+		c[8 * (block - 1) + j] = c_block[j];//æŠŠjå†™æˆäº†1
 	
-	//ÏÔÊ¾ÃÜÎÄ
+	//æ˜¾ç¤ºå¯†æ–‡
 	CString cipher = c;
 	SetDlgItemText(IDC_EDIT3, cipher);
 }
@@ -610,9 +610,9 @@ else if(check_3==1)
 	int len = msg.GetLength();
 	for (int i = 0; i < len; i++)
 	{
-		mm.num[i] = message[i];			//mÈ«¾Ö±äÁ¿£¬BigintĞÍ,´ı¼ì²éÖĞÎÄÊÇ·ñ¿ÉĞĞ
+		mm.num[i] = message[i];			//må…¨å±€å˜é‡ï¼ŒBigintå‹,å¾…æ£€æŸ¥ä¸­æ–‡æ˜¯å¦å¯è¡Œ
 	}
-	cc = Encrypt(mm, e, N);				//ÌåÏÖÎªÊ²Ã´ÓÃÈ«¾Ö±äÁ¿
+	cc = Encrypt(mm, e, N);				//ä½“ç°ä¸ºä»€ä¹ˆç”¨å…¨å±€å˜é‡
 
 	CString Temp;
 	Temp.Format(_T("%s"), cc.num);
@@ -623,7 +623,7 @@ else if(check_3==1)
 
 void CYuCryptoDlg::OnBnClickedButton2()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	int check_1 = ((CButton*)GetDlgItem(IDC_RADIO1))->GetCheck();//caeser
 	int check_2 = ((CButton*)GetDlgItem(IDC_RADIO2))->GetCheck();//des
 	int check_3 = ((CButton*)GetDlgItem(IDC_RADIO3))->GetCheck();//rsa
@@ -633,21 +633,21 @@ if(check_1==1)
 	CString message;
 	CString cipher;
 	CString key;
-	GetDlgItemText(IDC_EDIT3, message);//»ñÈ¡ÎÄ±¾¿òÄÚÈİ´«¸ømessage
-	GetDlgItemText(IDC_EDIT1, key);//»ñÈ¡ÃÜÔ¿ÎÄ±¾¿òÄÚÈİ´«¸økey
+	GetDlgItemText(IDC_EDIT3, message);//è·å–æ–‡æœ¬æ¡†å†…å®¹ä¼ ç»™message
+	GetDlgItemText(IDC_EDIT1, key);//è·å–å¯†é’¥æ–‡æœ¬æ¡†å†…å®¹ä¼ ç»™key
 	char *message1 = message.GetBuffer(0);
 	char *cipher1;
 	int key1 = 0;
 	int key2 = 0;
 	key1 = 26 - _ttoi(key) % 26;
 	key2 = 10 - _ttoi(key) % 10;
-	cipher1 = message1;//Ä¬ÈÏÃÜÎÄµÈÓÚÃ÷ÎÄ
+	cipher1 = message1;//é»˜è®¤å¯†æ–‡ç­‰äºæ˜æ–‡
 	int size = message.GetLength();
 	for (int i = 0; i < size; i++)
 	{
-		if (message1[i] >= 'a'&&message1[i] <= 'z')//Ğ¡Ğ´×ÖÄ¸
+		if (message1[i] >= 'a'&&message1[i] <= 'z')//å°å†™å­—æ¯
 		{
-			if (message1[i] + key1 > 122)//122Îª¡®z'µÄasciiÂë
+			if (message1[i] + key1 > 122)//122ä¸ºâ€˜z'çš„asciiç 
 			{
 				cipher1[i] = message[i] + key1 - 26;
 			}
@@ -656,9 +656,9 @@ if(check_1==1)
 				cipher1[i] = message[i] + key1;
 			}
 		}
-		if (message1[i] >= 'A'&&message1[i] <= 'Z')//´óĞ´×ÖÄ¸
+		if (message1[i] >= 'A'&&message1[i] <= 'Z')//å¤§å†™å­—æ¯
 		{
-			if (message1[i] + key1 > 90)//90Îª¡®Z'µÄasciiÂë
+			if (message1[i] + key1 > 90)//90ä¸ºâ€˜Z'çš„asciiç 
 			{
 				cipher1[i] = message[i] + key1 - 26;
 			}
@@ -670,7 +670,7 @@ if(check_1==1)
 		if (message1[i] >= '0'&&message[i] <= '9')
 		{
 			
-			if (message1[i] + key2 > 57)//57Îª¡®9'µÄasciiÂë
+			if (message1[i] + key2 > 57)//57ä¸ºâ€˜9'çš„asciiç 
 			{
 				cipher1[i] = message[i] + key2 - 10;
 			}
@@ -688,16 +688,16 @@ else if(check_2==1)
 {
 	char m_block[8] = { 0 };
 	char c_block[8] = { 0 };
-	//¿ªÊ¼ĞŞ¸Ä
+	//å¼€å§‹ä¿®æ”¹
 	CString k;
 	GetDlgItemText(IDC_EDIT1, k);
 	char* key = k.GetBuffer(0);
 	Des_SetSubkey(key);
 	CString Cipher;
 	GetDlgItemText(IDC_EDIT3, Cipher);
-	block = Cipher.GetLength() / 8;//ÃÜÎÄÖ»ÄÜÊÇ8µÄÕûÊı±¶
+	block = Cipher.GetLength() / 8;//å¯†æ–‡åªèƒ½æ˜¯8çš„æ•´æ•°å€
 
-	for (int i = 0; i < block; i++)//block¸Ä³ÉÁË8
+	for (int i = 0; i < block; i++)//blockæ”¹æˆäº†8
 	{
 		for (int j = 0; j < 8; j++)
 			c_block[j] = Cipher[8 * i + j];
@@ -705,7 +705,7 @@ else if(check_2==1)
 		for (int j = 0; j < 8; j++)
 			M[8 * i + j] = m_block[j];
 	}
-	//ÏÔÊ¾½âÃÜÎÄ
+	//æ˜¾ç¤ºè§£å¯†æ–‡
 	CString message = M;
 	SetDlgItemText(IDC_EDIT2, message);
 }
@@ -720,16 +720,41 @@ else if(check_3==1)
 
 void CYuCryptoDlg::OnBnClickedButton3()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	int check_1 = ((CButton*)GetDlgItem(IDC_RADIO1))->GetCheck();//caeser
+	int check_2 = ((CButton*)GetDlgItem(IDC_RADIO2))->GetCheck();//des
+	int check_3 = ((CButton*)GetDlgItem(IDC_RADIO3))->GetCheck();//rsa
+
+if(check_1==1||check_2==1)
+{
+	char pwdcont[]="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+	int i;
+	int random;
+	char *Password = (char *)malloc(12 + 1);
+	
+	srand((unsigned)time(NULL));
+	for(i = 0;i < 12;i++)
+	{
+        random = rand()%(strlen(pwdcont));
+		*(Password + i) = pwdcont[random]; 
+	}
+	
+	*(Password + i)= '\0'; 
+
+	SetDlgItemText(IDC_EDIT1,Password);
+
+}
+else if(check_3==1)
+{
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
     //CString P, Q, N, E, D;
 	//Bigint p, q, n, e, d;
 	srand(time(NULL));
-	p = GenPrime(16);			//ÏÈÀ´ N 256±ÈÌØ
-	q = GenPrime(16);				//SIZEÔ½¶Ì£¬¼ÓÃÜÔ½¿ì			//SIZE 65,512±ÈÌØĞèÒª4·Ö50Ãë,256±ÈÌØ3·Ö¶à
-	N = Narrow(Mul(p, q));				//SIZE 33 256±ÈÌØ 50s
+	p = GenPrime(16);			//å…ˆæ¥ N 256æ¯”ç‰¹
+	q = GenPrime(16);				//SIZEè¶ŠçŸ­ï¼ŒåŠ å¯†è¶Šå¿«			//SIZE 65,512æ¯”ç‰¹éœ€è¦4åˆ†50ç§’,256æ¯”ç‰¹3åˆ†å¤š
+	N = Narrow(Mul(p, q));				//SIZE 33 256æ¯”ç‰¹ 50s
 	int len = 0;
 
-	//ĞŞ¸Ä
+	//ä¿®æ”¹
 	
 	unsigned char Out1[2000] = { 0 };
 	unsigned char Out2[2000] = { 0 };
@@ -743,37 +768,38 @@ void CYuCryptoDlg::OnBnClickedButton3()
 	unsigned int Out4[2000] = { 0 };
 	unsigned int Out5[2000] = { 0 };*/
 	CString res;
-	//Êä³öp
+	//è¾“å‡ºp
 	PrintNum(Out1, len, p);
-	res = CYuCryptoDlg::Tansform(Out1, len);		//×Ô¼º¶¨ÒåµÄ
+	res = CYuCryptoDlg::Tansform(Out1, len);		//è‡ªå·±å®šä¹‰çš„
 
-	//Êä³öq
-	PrintNum(Out2, len, q);							//len´«ÈëÖ®ºó»áÖØÖÃ0
+	//è¾“å‡ºq
+	PrintNum(Out2, len, q);							//lenä¼ å…¥ä¹‹åä¼šé‡ç½®0
 	res = CYuCryptoDlg::Tansform(Out2, len);		
 
-	//Êä³öN
+	//è¾“å‡ºN
 	PrintNum(Out3, len, N);
 	res = CYuCryptoDlg::Tansform(Out3, len);
 
-	//Éú³Ée,Êä³öe
+	//ç”Ÿæˆe,è¾“å‡ºe
 	Bigint one = { 1 };
-	PhiN = Narrow(Mul(Sub(p, one), Sub(q, one)));//¼ÆËãPhiN
-	e = GenE(PhiN);								//Éú³Ée
+	PhiN = Narrow(Mul(Sub(p, one), Sub(q, one)));//è®¡ç®—PhiN
+	e = GenE(PhiN);								//ç”Ÿæˆe
 	PrintNum(Out4, len, e);
 	res = CYuCryptoDlg::Tansform(Out4, len);
 	SetDlgItemText(IDC_EDIT4, res);
 
-	//Éú³Éd,Êä³öd
+	//ç”Ÿæˆd,è¾“å‡ºd
 	Inverse(e, PhiN, d);
 	PrintNum(Out5, len, d);
 	res = CYuCryptoDlg::Tansform(Out5, len);
 	SetDlgItemText(IDC_EDIT1, res);
 }
+}
 
 
 void CYuCryptoDlg::OnBnClickedRadio1()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	((CButton*)GetDlgItem(IDC_BUTTON3))->EnableWindow(FALSE);
 	((CButton*)GetDlgItem(IDC_EDIT4))->EnableWindow(FALSE);
 	SetDlgItemText(IDC_EDIT1, "");
@@ -785,7 +811,7 @@ void CYuCryptoDlg::OnBnClickedRadio1()
 
 void CYuCryptoDlg::OnBnClickedRadio2()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	((CButton*)GetDlgItem(IDC_BUTTON3))->EnableWindow(FALSE);
 	((CButton*)GetDlgItem(IDC_EDIT4))->EnableWindow(FALSE);
 	SetDlgItemText(IDC_EDIT1, "");
@@ -797,7 +823,7 @@ void CYuCryptoDlg::OnBnClickedRadio2()
 
 void CYuCryptoDlg::OnBnClickedRadio3()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	((CButton*)GetDlgItem(IDC_BUTTON3))->EnableWindow(TRUE);
 	((CButton*)GetDlgItem(IDC_EDIT4))->EnableWindow(TRUE);
 	SetDlgItemText(IDC_EDIT1, "");
@@ -809,21 +835,21 @@ void CYuCryptoDlg::OnBnClickedRadio3()
 
 void CYuCryptoDlg::OnEnChangeEdit1()
 {
-	// TODO:  Èç¹û¸Ã¿Ø¼şÊÇ RICHEDIT ¿Ø¼ş£¬Ëü½«²»
-	// ·¢ËÍ´ËÍ¨Öª£¬³ı·ÇÖØĞ´ CDialogEx::OnInitDialog()
-	// º¯Êı²¢µ÷ÓÃ CRichEditCtrl().SetEventMask()£¬
-	// Í¬Ê±½« ENM_CHANGE ±êÖ¾¡°»ò¡±ÔËËãµ½ÑÚÂëÖĞ¡£
+	// TODO:  å¦‚æœè¯¥æ§ä»¶æ˜¯ RICHEDIT æ§ä»¶ï¼Œå®ƒå°†ä¸
+	// å‘é€æ­¤é€šçŸ¥ï¼Œé™¤éé‡å†™ CDialogEx::OnInitDialog()
+	// å‡½æ•°å¹¶è°ƒç”¨ CRichEditCtrl().SetEventMask()ï¼Œ
+	// åŒæ—¶å°† ENM_CHANGE æ ‡å¿—â€œæˆ–â€è¿ç®—åˆ°æ©ç ä¸­ã€‚
 
-	// TODO:  ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO:  åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 }
 
 
 void CYuCryptoDlg::OnEnChangeEdit4()
 {
-	// TODO:  Èç¹û¸Ã¿Ø¼şÊÇ RICHEDIT ¿Ø¼ş£¬Ëü½«²»
-	// ·¢ËÍ´ËÍ¨Öª£¬³ı·ÇÖØĞ´ CDialogEx::OnInitDialog()
-	// º¯Êı²¢µ÷ÓÃ CRichEditCtrl().SetEventMask()£¬
-	// Í¬Ê±½« ENM_CHANGE ±êÖ¾¡°»ò¡±ÔËËãµ½ÑÚÂëÖĞ¡£
+	// TODO:  å¦‚æœè¯¥æ§ä»¶æ˜¯ RICHEDIT æ§ä»¶ï¼Œå®ƒå°†ä¸
+	// å‘é€æ­¤é€šçŸ¥ï¼Œé™¤éé‡å†™ CDialogEx::OnInitDialog()
+	// å‡½æ•°å¹¶è°ƒç”¨ CRichEditCtrl().SetEventMask()ï¼Œ
+	// åŒæ—¶å°† ENM_CHANGE æ ‡å¿—â€œæˆ–â€è¿ç®—åˆ°æ©ç ä¸­ã€‚
 
-	// TODO:  ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO:  åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 }
