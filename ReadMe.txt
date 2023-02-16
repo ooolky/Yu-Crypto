@@ -1,1 +1,1 @@
-simple toolbox for Cryptography lesson
+simple project for Cryptography lesson
